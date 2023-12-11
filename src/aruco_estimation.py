@@ -15,7 +15,6 @@ t_vectors = calib_data["tVector"]
 MARKER_SIZE = 8  # centimeters
 
 marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
-
 param_markers = aruco.DetectorParameters_create()
 
 def init_zed():
