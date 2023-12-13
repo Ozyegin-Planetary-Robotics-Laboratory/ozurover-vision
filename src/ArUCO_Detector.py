@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 from sensor_msgs.msg import Image
-from cv2 import aruco
+
 from cv_bridge import CvBridge
 import cv2 as cv
 import numpy as np
@@ -23,16 +23,16 @@ cam_mat = np.array([[left_cam_hd['fx'], 0, left_cam_hd['cx']],
                                [0, 0, 1]])
 
 dist_coef = np.array([-0.0557809, 0.0279374, 0.000647675, -0.000394777, -0.0106177])
-marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+marker_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_4X4_50)
 
-param_markers = aruco.DetectorParameters_create()
+param_markers = cv.aruco.DetectorParameters_create()
 ArucoList = []
 
 def ArucoFunc(frame,marker_dict,param_markers,cam_mat,dist_coef,list):
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     marker_corners, marker_IDs, reject = cv.aruco.detectMarkers(gray, marker_dict,parameters=param_markers)
     if marker_corners:
-        rVec, tVec, _ = aruco.estimatePoseSingleMarkers(
+        rVec, tVec, _ = cv.aruco.estimatePoseSingleMarkers(
             marker_corners, MARKER_SIZE, cam_mat, dist_coef
         )
         
