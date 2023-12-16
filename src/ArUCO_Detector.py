@@ -12,20 +12,20 @@ class Node:
         self.sub = rospy.Subscriber("rgb/image_rect_color",Image,self.callback)
         self.MARKER_SIZE = 20.0
         self.LEFT_CAM_HD = {
-                            'fx': 533.895,
-                            'fy': 534.42,
-                            'cx': 642.65,
-                            'cy': 349.4705,
-                            'k1': -0.0557809,
-                            'k2': 0.0279374,
-                            'p1': 0.000647675,
-                            'p2': -0.000394777,
-                            'k3': -0.0106177
-                            }
+                'fx': 266.947509765625,
+                'fy': 267.2099914550781,
+                'cx': 321.32501220703125,
+                'cy': 174.73524475097656,
+                'k1': -0.7849979996681213,
+                'k2': 2.440959930419922,
+                'p1': 0.0005619379808194935,
+                'p2': -7.784450281178579e-05,
+                'k3': 0.11348900198936462
+                }
+
         self.CAM_MAT = np.array([[self.LEFT_CAM_HD['fx'], 0, self.LEFT_CAM_HD['cx']],
-                    [0, self.LEFT_CAM_HD['fy'], self.LEFT_CAM_HD['cy']],
-                               [0, 0, 1]])
-        self.DIST_COEF = np.array([-0.0557809, 0.0279374, 0.000647675, -0.000394777, -0.0106177])
+                                [0, self.LEFT_CAM_HD['fy'], self.LEFT_CAM_HD['cy']],
+                                [0, 0, 1]])
         self.MARKER_DICT = cv.aruco.Dictionary_get(cv.aruco.DICT_4X4_50)
         self.PARAM_MARKERS = cv.aruco.DetectorParameters_create()
     
