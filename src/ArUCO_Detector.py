@@ -7,11 +7,12 @@ import numpy as np
 from ozurover_messages.msg import Marker
 
 class Node:
-    def _init_(self):
+    def __init__(self):
+        print("slm")
         rospy.init_node("ares_aruco_detecter")
         self.pub = rospy.Publisher("ares/goal/marker",Marker,queue_size = 1)
-        self.sub = rospy.Subscriber("/zed2/zed_node/left/image_rect_color",Image,self.callback)
-        self.MARKER_SIZE = 19.0
+        self.sub = rospy.Subscriber("/zed2i/zed_node/left/image_rect_color",Image,self.callback)
+        self.MARKER_SIZE = 20.0
         self.CAM_MAT = np.array([[263.95489501953125, 0, 320],
                          [0, 263.95489501953125, 180],
                          [0, 0, 1]])    
@@ -36,6 +37,40 @@ class Node:
         marker_corners, marker_IDs = self.detect_markers(frame)
 
         if marker_corners:
+
+
+            
+            for (markerCorner, markerID) in zip(marker_corners, marker_IDs):
+                # extract the marker corners (which are always returned
+                # in top-left, top-right, bottom-right, and bottom-left
+                # order)
+                corners = markerCorner.reshape((4, 2))
+                (topLeft, topRight, bottomRight, bottomLeft) = corners
+
+                # Convert each of the (x, y)-coordinate pairs to integers
+                topRight = (int(topRight[0]), int(topRight[1]))
+                bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+                bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+                topLeft = (int(topLeft[0]), int(topLeft[1]))
+
+                # Draw the bounding box of the ArUco detection
+                cv.line(frame, topLeft, topRight, (0, 255, 0), 2)
+                cv.line(frame, topRight, bottomRight, (0, 255, 0), 2)
+                cv.line(frame, bottomRight, bottomLeft, (0, 255, 0), 2)
+                cv.line(frame, bottomLeft, topLeft, (0, 255, 0), 2)
+
+                # Compute and draw the center (x, y)-coordinates of the ArUco marker
+                cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+                cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+                cv.circle(frame, (cX, cY), 4, (0, 0, 255), -1)
+
+                # Draw the ArUco marker ID on the frame
+                cv.putText(frame, str(markerID),
+                            (topLeft[0], topLeft[1] - 15),
+                            cv.FONT_HERSHEY_SIMPLEX,
+                            0.5, (0, 255, 0), 2)
+                
+
             tVec = self.estimate_pose(marker_corners)
 
             total_markers = range(0, marker_IDs.size)
@@ -48,10 +83,13 @@ class Node:
                 aruco_tag.type = ids[0]
                 self.pub.publish(aruco_tag)
 
-                
+        frame_resized = cv.resize(frame,(1280,720),  interpolation=cv.INTER_LINEAR)
+        cv.imshow("Detected Markers", frame_resized)
+        cv.waitKey(1)   
 
     def callback(self, image_data):
         try:
+            print("slm")
             # Convert ROS Image message to OpenCV image
             bridge = CvBridge()
             cv_image = bridge.imgmsg_to_cv2(image_data, desired_encoding="bgr8")
@@ -61,6 +99,6 @@ class Node:
 
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     node = Node()
     rospy.spin()
